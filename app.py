@@ -22,10 +22,33 @@ def get_core_itmes():
         if len(core_items) > 0:
             return jsonify(core_items)
         else:
-            return "Not Found", 400
+            return "Not Found", 404
     if request.method == "POST":
         app.logger.info(request.form["name"])
         new_item = request.form["name"]
         last_id = core_items[-1]["id"]
         core_items.append({"id": last_id + 1, "name": new_item})
         return jsonify(core_items), 201
+
+
+@app.route("/core_item/<int:id>", methods=["GET", "PUT", "DELETE"])
+def get_core_items_by_id(id):
+    if request.method == "GET":
+        for item in core_items:
+            if item["id"] == id:
+                return jsonify(item), 200
+        return jsonify({"error": "Element not found"}), 404
+
+    if request.method == "PUT":
+        for item in core_items:
+            if item["id"] == id:
+                item["name"] = request.form["name"]
+                return jsonify(item)
+        return jsonify({"error": "Element not found"}), 404
+
+    if request.method == "DELETE":
+        for item in core_items:
+            if item["id"] == id:
+                core_items.remove(item)
+                return jsonify({"message": "Item deleted successfully"}), 200
+        return jsonify({"error": "Element not found"}), 404
